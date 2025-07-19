@@ -1,8 +1,9 @@
 # IDE settings
 .idea
 
-# python packages
+# python
 .venv
+*__pycache__*
 
 # environment variables (never commit)
 .env
