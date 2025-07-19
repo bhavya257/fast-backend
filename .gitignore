@@ -4,3 +4,5 @@
 # python packages
 .venv
 
+# environment variables (never commit)
+.env

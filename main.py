@@ -1,13 +1,23 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from api.main import api_router
+from db import client
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    try:
+        client.admin.command('ping')
+        print("Successfully connected to MongoDB!")
+    except Exception as e:
+        print(e)
 
+    yield
+    # Shutdown logic
+    client.close()
+    print("Application shutdown: Database disconnected.")
+app = FastAPI(
+    lifespan=lifespan,
+)
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(api_router)
