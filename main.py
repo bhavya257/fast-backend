@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
 from api.main import api_router
 from db import client
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,6 +19,8 @@ async def lifespan(app: FastAPI):
     # Shutdown logic
     client.close()
     print("Application shutdown: Database disconnected.")
+
+
 app = FastAPI(
     lifespan=lifespan,
 )

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from api.routes import products, orders
 
+from api.routes import products
 
 api_router = APIRouter()
 
