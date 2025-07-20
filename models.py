@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from bson import ObjectId
 from fastapi import Body
 from pydantic import BaseModel, Field
+from pydantic_mongo import ObjectIdField
 
 
 class ItemSize(BaseModel):
@@ -17,13 +17,21 @@ class ProductItem(BaseModel):
 
 
 class ProductCreateResponse(BaseModel):
-    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
+    id: ObjectIdField = Field(default_factory=ObjectIdField)
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
 
 
 class SavedProductItem(BaseModel):
-    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
+    id: ObjectIdField = Field(default_factory=ObjectIdField)
     name: str
     price: Annotated[float, Body(ge=0)]
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
 
 
 class Page(BaseModel):
@@ -37,15 +45,27 @@ class ProductsReadResponse(BaseModel):
     page: Page
 
 
-class OrderCreateResponse(BaseModel):
-    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
-
-
 class OrderProductItem(BaseModel):
-    productId: ObjectId = Field(default_factory=ObjectId, alias="_id")
+    productId: ObjectIdField = Field(default_factory=ObjectIdField)
     qty: Annotated[int, Body(gt=0)]
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
 
 
 class OrderItem(BaseModel):
-    user_id: ObjectId = Field(default=ObjectId("687ceebd47f1ca9b700becac"), alias="_id")
+    user_id: ObjectIdField = Field(default=ObjectIdField("687ceebd47f1ca9b700becac"))
     items: list[OrderProductItem]
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
+
+
+class OrderCreateResponse(BaseModel):
+    id: ObjectIdField = Field(default_factory=ObjectIdField)
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
