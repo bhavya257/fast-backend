@@ -47,6 +47,7 @@ def create_with_session(session, collection_name: str, item: dict):
 
 
 def execute_order(session, order: OrderItem):
+    order_total = float(0)
     for item in order.items:
         product = read_one_with_session(session, settings.products_collection, item.productId)
         if product is None:
@@ -54,10 +55,12 @@ def execute_order(session, order: OrderItem):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Product with id: {item.productId} does not exist"
             )
+        order_total += product["price"] * item.qty
 
         # TODO: add logic for checking quantity and update it
 
     order_dict = order.model_dump()
+    order_dict["total"] = order_total
     order_id = create_with_session(session, settings.orders_collection, order_dict)
     return order_id
 

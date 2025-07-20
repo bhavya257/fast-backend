@@ -6,6 +6,7 @@ from fastapi import Query
 from config import settings
 from db import create, read
 from models import ProductItem, ProductCreateResponse, ProductsReadResponse
+from utils import pagination_index
 
 router = APIRouter(prefix="/products", tags=["products"])
 collection_name = settings.products_collection
@@ -37,12 +38,7 @@ async def read_products(
     selected_products = result["selected_products"]
     data = [{"id": str(p["_id"]), "name": p["name"], "price": p["price"]} for p in selected_products]
 
-    page = {}
-    if offset + limit < total_products:
-        page["next"] = offset + limit
-    page["limit"] = limit
-    if offset > 0:
-        page["previous"] = max(0, min(offset - limit, total_products - limit))
+    page = pagination_index(offset, limit, total_products)
     return {
         "data": data,
         "page": page,

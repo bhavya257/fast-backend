@@ -1,10 +1,13 @@
 from functools import partial
+from typing import Annotated
 
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Query
+from pydantic_mongo import ObjectIdField
 
 from config import settings
 from db import item_exists, execute_order, run_transaction
-from models import OrderCreateResponse, OrderItem
+from models import OrderCreateResponse, OrderItem, OrderReadResponse
+from utils import pagination_index
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 collection = settings.orders_collection
@@ -32,9 +35,16 @@ async def create_order(order: OrderItem):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# @router.get("/", response_model=, status_code=status.HTTP_200_OK)
+# @router.get("/{user_id}", response_model=OrderReadResponse, status_code=status.HTTP_200_OK)
 # async def read_orders(
+#         user_id: ObjectIdField,
 #         limit: Annotated[int | None, Query(gt=0)] = 15,
 #         offset: Annotated[int | None, Query(ge=0)] = 0,
 # ):
-#     return
+#     data = {}
+#     total_orders = 0
+#     page = pagination_index(offset, limit, total_orders)
+#     return {
+#         "data": data,
+#         "page": page,
+#     }
