@@ -10,6 +10,13 @@ managing products and orders.
 * **Database Integration**: Uses MongoDB for data storage.
 * **Data Validation**: Pydantic models for request and response validation.
 
+## Deployment
+
+The application is deployed on Railway and is live.
+
+* **Live Application**: https://fast-backend-production.up.railway.app/
+* **API Docs (Swagger UI)**: https://fast-backend-production.up.railway.app/docs
+
 ## Installation
 
 1. **Clone the repository:**
