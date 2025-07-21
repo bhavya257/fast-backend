@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Body
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_mongo import ObjectIdField
 
 
@@ -38,23 +38,13 @@ class ProductsReadResponse(BaseModel):
 
 
 class OrderProductItem(BaseModel):
-    productId: ObjectIdField
+    productId: ObjectIdField = Field(..., example="687bee26ed7470dbb5c52192")
     qty: Annotated[int, Body(gt=0)]
 
 
 class OrderItem(BaseModel):
-    user_id: ObjectIdField
+    user_id: ObjectIdField = Field(..., example="687ceebd47f1ca9b700becac")
     items: list[OrderProductItem]
-
-    model_config = {
-        "json_schema_extra": {"example": {
-            "user_id": "687ceebd47f1ca9b700becac",
-            "items": [
-                {"productId": "687bee26ed7470dbb5c52192",
-                 "qty": 69},
-            ]
-        }}
-    }
 
 
 class OrderCreateResponse(BaseModel):
@@ -67,13 +57,14 @@ class SavedOrderProductItem(BaseModel):
 
 
 class SavedOrderItem(BaseModel):
-    productDetails: list[SavedOrderProductItem]
+    productDetails: SavedOrderProductItem
     qty: Annotated[int, Body(gt=0)]
 
 
 class SavedOrders(BaseModel):
     id: ObjectIdField
     items: list[SavedOrderItem]
+    total: Annotated[float, Body(ge=0)]
 
 
 class OrderReadResponse(BaseModel):

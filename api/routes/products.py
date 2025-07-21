@@ -35,7 +35,7 @@ async def read_products(
         query["sizes"] = {"$elemMatch": {"size": size}}
     result = await read(collection_name, query, limit, offset)
     total_products = result["total_items"]
-    selected_products = result["selected_products"]
+    selected_products = result["selected_items"]
     data = [{"id": str(p["_id"]), "name": p["name"], "price": p["price"]} for p in selected_products]
 
     page = pagination_index(offset, limit, total_products)

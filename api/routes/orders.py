@@ -1,11 +1,11 @@
 from functools import partial
 from typing import Annotated
 
-from fastapi import APIRouter, status, HTTPException, Query
+from fastapi import APIRouter, status, HTTPException, Query, Path
 from pydantic_mongo import ObjectIdField
 
 from config import settings
-from db import item_exists, execute_order, run_transaction
+from db import item_exists, execute_order, run_transaction, read_orders_for_user
 from models import OrderCreateResponse, OrderItem, OrderReadResponse
 from utils import pagination_index
 
@@ -35,16 +35,23 @@ async def create_order(order: OrderItem):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# @router.get("/{user_id}", response_model=OrderReadResponse, status_code=status.HTTP_200_OK)
-# async def read_orders(
-#         user_id: ObjectIdField,
-#         limit: Annotated[int | None, Query(gt=0)] = 15,
-#         offset: Annotated[int | None, Query(ge=0)] = 0,
-# ):
-#     data = {}
-#     total_orders = 0
-#     page = pagination_index(offset, limit, total_orders)
-#     return {
-#         "data": data,
-#         "page": page,
-#     }
+@router.get("/{user_id}", response_model=OrderReadResponse, status_code=status.HTTP_200_OK)
+async def read_user_orders(
+        user_id: Annotated[ObjectIdField, Path(example="687ceebd47f1ca9b700becac")],
+        limit: Annotated[int | None, Query(gt=0)] = 15,
+        offset: Annotated[int | None, Query(ge=0)] = 0,
+):
+    user_exists = await item_exists(users_collection, user_id)
+    if not user_exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id: {user_id} does not exist"
+        )
+    result = await read_orders_for_user(user_id, limit, offset)
+    data = list(result["selected_orders"])
+    total_orders = result["total_orders"]
+    page = pagination_index(offset, limit, total_orders)
+    return {
+        "data": data,
+        "page": page,
+    }
