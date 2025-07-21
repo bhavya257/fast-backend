@@ -10,12 +10,16 @@ from models import OrderCreateResponse, OrderItem, OrderReadResponse
 from utils import pagination_index
 
 router = APIRouter(prefix="/orders", tags=["orders"])
-collection = settings.orders_collection
 users_collection = settings.users_collection
 
 
 @router.post("/", response_model=OrderCreateResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(order: OrderItem):
+    """
+    Creates a new order for a user.
+    :param order: The order details, includes user id and list of product items with quantity.
+    :return: ID of the created order.
+    """
     user_exists = await item_exists(users_collection, order.user_id)
     if not user_exists:
         raise HTTPException(
@@ -41,6 +45,13 @@ async def read_user_orders(
         limit: Annotated[int | None, Query(gt=0)] = 15,
         offset: Annotated[int | None, Query(ge=0)] = 0,
 ):
+    """
+    Retrieves a paginated list of orders for a specific user.
+    :param user_id: The user's ID.
+    :param limit: The maximum number of orders to return.
+    :param offset: The number of orders to skip.
+    :return: List of orders and page metadata.
+    """
     user_exists = await item_exists(users_collection, user_id)
     if not user_exists:
         raise HTTPException(
@@ -50,7 +61,7 @@ async def read_user_orders(
     result = await read_orders_for_user(user_id, limit, offset)
     data = list(result["selected_orders"])
     total_orders = result["total_orders"]
-    page = pagination_index(offset, limit, total_orders)
+    page = pagination_index(offset, limit, total_orders, len(data))
     return {
         "data": data,
         "page": page,
